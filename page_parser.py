@@ -6,7 +6,7 @@ DIV_INFO = {'name': "div",
             'attrs': {'style': "padding:7px;", 'align':"center"}}
 DIV_SKILL = {'name': "div",
              'attrs': {'class': "contentModule phpGamesNonPortalView"}}
-ID_ATT = """>Attack</a>"""
+ID_ATT = """Weapon: """
 ID_SKILL = """** Spend Skill Points ***"""
 ID_BEG = """Click here to begin the fight!"""
 ID_LOOT = """ to see what you found!"""
@@ -24,8 +24,9 @@ def parse_page(html):
     # TODO: encounter battle state
     if ID_ATT in text:
         names = [e.next.next for e in info.find_all('font')]
+        stunned = text.find(">Attack</a>") == -1
         hp = re.findall("Health:.*?(\d+).*?(\d+)", text)[1:]
-        return {'state': "attack", 'data': {'health': hp, 'names': names}}
+        return {'state': "attack", 'data': {'health': hp, 'names': names, 'stunned': stunned}}
     elif ID_BEG in text:
         return {'state': "begin_fight", 'data': None}
     elif ID_LOOT in text:

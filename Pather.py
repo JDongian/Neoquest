@@ -8,6 +8,10 @@ R_23 = "555555558777777777877777677855555555532222222222222222211" # portal prob
 R_34 = "55587777853222235877778532222355877787777676678587776444441114114444144122222223" # OK
 R_45 = "22146777787855558853222222112214444444466677777777858855555555555322323222222211221441144464444444444"
 R_56 = "1"
+# 2457
+R_07 = "7" * 8 + "6" * 3 + "7" * 6  + "65555885"
+R_78 = "22355535322353"
+
 
 def _format(route):
     return [int(d) for d in route]
@@ -20,16 +24,19 @@ def _invert(route):
 class Pather():
     CITY1 = 0
     CAVE1 = 1 # inside cave at level 1
-    CAVE2 = 2
-    CAVE3 = 3
-    CAVE4 = 4
-    CAVE5 = 5 # exit of the portal after level 4 of cave
+    CAVE2 = 2 # beginning of upper temple
+    CAVE3 = 3 # beginning of lower temple
+    CAVE4 = 4 # beginning of maze
+    CAVE5 = 5 # portal exit after cave maze at level 1
     CAVE0 = 6 # outside cave at level 0
-    LOOP = _format("54")
+    JUNG1 = 7 # entrance of jung at level 1
+    JUNG2 = 8 # entrance of jung dung
+    LOOP = _format("27")
     # TODO: specify portal usage explicity in a route
     # TODO: replace magic numbers with variable names
-    # TODO: add inversion to algorithm to remove pairs
     # TODO: don't add to travel_queue for loop, instead have a dedicated loop(pos) method
+    # TODO: check route efficiency (score based on edge length)
+    # TODO: more advanced queuing is needed at the upper level (pathing may be too efficient)
     EDGES = {(0, 0): _format("44" + "27"*4 + "55"),
              (0, 1): _format(R_01),
              (1, 0): _invert(_format(R_01)),
@@ -44,28 +51,40 @@ class Pather():
              (4, 3): _invert(_format(R_34)),
              (4, 4): LOOP,
              (4, 5): _format(R_45),
-             (5, 4): _invert(_format(R_45)),
              (5, 5): LOOP,
              (5, 6): _format(R_56),
              (6, 5): _invert(_format(R_56)),
              (6, 6): LOOP,
-             (6, 0): []#,
-             #(0, 6): []
+             (7, 7): LOOP,
+             (8, 8): LOOP,
+             (1, 6): [],
+             (6, 1): [],
+             (0, 6): _format(R_01),
+             (6, 0): _invert(_format(R_01)),
+             (0, 7): _format(R_07),
+             (7, 0): _invert(_format(R_07)),
+             (7, 8): _format(R_78),
+             (8, 7): _invert(_format(R_78)),
             }
     PORTALS = {(0, 1): (None, 1),
                (1, 0): (1, None),
                (1, 2): (None, 2),
                (2, 1): (2, None),
-               (2, 3): (None, 3),
-               (3, 2): (3, None),
+               (2, 3): (None, 4),
+               (3, 2): (4, None),
                (3, 4): (None, 6),
                (4, 3): (6, None),
                (4, 5): (None, 8),
-               (5, 4): (8, None),
                (5, 6): (None, 1),
                (6, 5): (1, None),
-               (6, 0): (None, 1),
-               (0, 6): (1, None)
+               (1, 6): (1, None),
+               (6, 1): (None, 1),
+               (0, 6): (None, None),
+               (6, 0): (None, None),
+               (0, 7): (None, 2),
+               (7, 0): (1, None),
+               (7, 8): (None, 3),
+               (8, 7): (1, None)
               }
 
 
@@ -85,7 +104,9 @@ class Pather():
 
 
     def get_destination(self):
-        return self.dst
+        if len(self.travel_queue) == 0:
+            return self.dst
+        return self.travel_queue[0]
 
 
     def _waypoints(self, frm, to, visited):
@@ -146,13 +167,13 @@ class Pather():
 
                 return self.next_direction()
             else:
-                logging.debug("generating path")
+                logging.debug("generating path {}->{}".format(self.pos, next_dst))
                 for waypoint in reversed(self.waypoints(self.pos, next_dst)):
                     self.travel_queue.insert(0, waypoint)
                 return self.next_direction()
 
         if self.index == len(self.route):
-            logging.info("completed route to {}".format(self.dst))
+            logging.info("finishing route to {}".format(self.dst))
             _, portal = self.portal
             self.index = 0
             self.route = None
@@ -165,9 +186,10 @@ class Pather():
 
         if self.traveling:
             logging.debug("route index: {}".format(self.index))
-            portal, _ = self.portal
+
+            portal, portal_end = self.portal
             if portal and self.index == 0:
-                self.portal[0] = None
+                self.portal = None, portal_end
                 return 0, portal
 
             d = self.route[self.index]

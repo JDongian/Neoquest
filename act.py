@@ -14,18 +14,24 @@ URL = "http://www.neopets.com/games/neoquest/neoquest.phtml"
 # deadcode HEADER_LEVEL_UP = {'Referer': URL + "?action=skill"}
 
 DATA_ATT = {'fact': "attack", 'type': 0}
+DATA_NOP = {'fact': "noop", 'type': 0}
 DATA_END = {'end_fight': 1}
 
 
 
-def move(s, movedir):
-    logging.info("move: {movedir}".format(movedir=movedir))
+def move(s, movedir, p):
+    if p:
+        return portal(s, p)
 
     if movedir in DIR:
         movedir = DIR[movedir]
 
-    #return s.get(NAV_URL.format(movedir=movedir))
     return s.get(URL, params={'action': "move", 'movedir': movedir})
+
+
+def portal(s, p):
+    """go through a portal to a different map level"""
+    return s.get(URL, params={'action': "move", 'movelink': p})
 
 
 def idle(s):
@@ -34,6 +40,10 @@ def idle(s):
 
 def attack(s):
     return s.post(URL, data=DATA_ATT)
+
+
+def do_nothing(s):
+    return s.post(URL, data=DATA_NOP)
 
 
 def begin_fight(s):

@@ -4,6 +4,7 @@ import logging
 import utils
 import act
 from page_parser import parse_page, page_trim
+from Pather import Pather
 
 #SKILL_GOALS = {
 #    'Fire Weapons': 7,
@@ -31,6 +32,12 @@ SKILL_GOALS = {
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--start",
+                        type=int, default=-1,
+                        help="specify start location (code)")
+    parser.add_argument("-d", "--dst",
+                        type=int, default=-1,
+                        help="specify end location (code)")
     parser.add_argument("-v", "--verbosity",
                         action="count", default=0,
                         help="increase output verbosity")
@@ -50,8 +57,8 @@ if __name__ == '__main__':
     s = utils.login()
     if not s:
         exit(-1)
-
-    flip = 1
+    #pather = Pather(Pather.CITY1)
+    pather = Pather(args.start)
 
     logging.info("start")
     page = act.idle(s)
@@ -61,21 +68,32 @@ if __name__ == '__main__':
 
         # TODO: oop
         if game['state'] == "attack":
-            logging.info("battling")
-            page = act.attack(s)
+            logging.debug("battling")
+            # TODO: battle logic
+            if game['data']['stunned']:
+                page = act.do_nothing(s)
+            else:
+                page = act.attack(s)
         elif game['state'] == "begin_fight":
             logging.info("battle start")
             page = act.begin_fight(s)
         elif game['state'] == "loot":
-            logging.info("looting")
+            logging.debug("looting")
             page = act.loot(s)
         elif game['state'] == "end_fight":
             logging.info("battle end")
             page = act.end_fight(s)
         elif game['state'] == "map":
-            logging.info("moving")
-            flip = (flip + 1) % 2
-            page = act.move(s, 4 + flip)
+            if pather.get_destination() == None:
+              # pather.travel(pather.CAVE4) ## TODO: avoid adding current position to queue (causes portal bug)
+              # pather.travel(pather.CAVE5)
+              # pather.travel(pather.CAVE0)
+               pather.travel(argparse.dst)
+               pather.travel(pather.CITY1)
+            direction, p = pather.next_direction()
+            #exit(0) # debug pathing
+            logging.info("move: {} {}".format(direction, p))
+            page = act.move(s, direction, p)
         elif game['state'] == "skill":
             logging.info("level up")
             page = act.level_up(s, None)
@@ -83,9 +101,13 @@ if __name__ == '__main__':
             logging.info("unhandled state")
             exit(-1)
 
-        #logname = '/tmp/p' + str(round(time.time() * 10))[6:] + '.html'
-        logdata = page_trim(page.content)
-        #with open(logname, 'w') as fp:
-        #    fp.write(logdata)
+        #logdata = page_trim(page.content)
+        logdata = page.content.decode('utf-8')
         with open('/tmp/p.html', 'w') as fp:
             fp.write(logdata)
+        if args.verbosity == 4:
+            logname = '/tmp/p' + str(round(time.time() * 10))[6:] + '.html'
+            with open(logname, 'w') as fp:
+                fp.write(logdata)
+
+
