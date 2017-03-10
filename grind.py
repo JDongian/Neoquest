@@ -3,6 +3,7 @@ import time
 import logging
 import utils
 import act
+import battle
 from page_parser import parse_page, page_trim
 from Pather import Pather
 
@@ -61,19 +62,17 @@ if __name__ == '__main__':
     pather = Pather(args.start)
 
     logging.info("start")
-    page = act.idle(s)
+    #page = act.idle(s)
+    page = act.mode_hunt(s)
     while True:
         game = parse_page(page.content)
         utils.tick_delay()
 
         # TODO: oop
+        # TODO: use weakest pot before walking if low
         if game['state'] == "attack":
             logging.debug("battling")
-            # TODO: battle logic
-            if game['data']['stunned']:
-                page = act.do_nothing(s)
-            else:
-                page = act.attack(s)
+            page = battle.battle(s, game['data'])
         elif game['state'] == "begin_fight":
             logging.info("battle start")
             page = act.begin_fight(s)
@@ -84,14 +83,15 @@ if __name__ == '__main__':
             logging.info("battle end")
             page = act.end_fight(s)
         elif game['state'] == "map":
+            act.heal(s, game['data']['hp'])
             if pather.get_destination() == None:
               # pather.travel(pather.CAVE4) ## TODO: avoid adding current position to queue (causes portal bug)
               # pather.travel(pather.CAVE5)
               # pather.travel(pather.CAVE0)
-               pather.travel(argparse.dst)
-               pather.travel(pather.CITY1)
+               pather.travel(args.dst)
+#               pather.travel(pather.JUNG1)
             direction, p = pather.next_direction()
-            #exit(0) # debug pathing
+            exit(0) # debug pathing
             logging.info("move: {} {}".format(direction, p))
             page = act.move(s, direction, p)
         elif game['state'] == "skill":

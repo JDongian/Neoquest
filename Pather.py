@@ -9,8 +9,10 @@ R_34 = "555877778532222358777785322223558777877776766785877764444411141144441441
 R_45 = "22146777787855558853222222112214444444466677777777858855555555555322323222222211221441144464444444444"
 R_56 = "1"
 # 2457
-R_07 = "7" * 8 + "6" * 3 + "7" * 6  + "65555885"
+R_07 = "7" * 8 + "6" * 3 + "7" * 5  + "65555885" # TODO: check 7x5
 R_78 = "22355535322353"
+R_89 = "555"
+R_910 = "7" * 5 + "88" + "5" * 6
 
 
 def _format(route):
@@ -29,8 +31,10 @@ class Pather():
     CAVE4 = 4 # beginning of maze
     CAVE5 = 5 # portal exit after cave maze at level 1
     CAVE0 = 6 # outside cave at level 0
-    JUNG1 = 7 # entrance of jung at level 1
-    JUNG2 = 8 # entrance of jung dung
+    JUNG1 = 7 # entrance of jung
+    JUNG2 = 8 # jung dung 1 entrance
+    JUNG3 = 9 # jung dung 2 entrance
+    JUNG4 = 10 # jung dung 3 entrance
     LOOP = _format("27")
     # TODO: specify portal usage explicity in a route
     # TODO: replace magic numbers with variable names
@@ -57,6 +61,8 @@ class Pather():
              (6, 6): LOOP,
              (7, 7): LOOP,
              (8, 8): LOOP,
+             (9, 9): LOOP,
+             (10, 10): LOOP,
              (1, 6): [],
              (6, 1): [],
              (0, 6): _format(R_01),
@@ -65,6 +71,10 @@ class Pather():
              (7, 0): _invert(_format(R_07)),
              (7, 8): _format(R_78),
              (8, 7): _invert(_format(R_78)),
+             (8, 9): _format(R_89),
+             (9, 8): _invert(_format(R_89)),
+             (9, 10): _format(R_910),
+             (10, 9): _invert(_format(R_910))
             }
     PORTALS = {(0, 1): (None, 1),
                (1, 0): (1, None),
@@ -84,7 +94,11 @@ class Pather():
                (0, 7): (None, 2),
                (7, 0): (1, None),
                (7, 8): (None, 3),
-               (8, 7): (1, None)
+               (8, 7): (1, None),
+               (8, 9): (None, 2),
+               (9, 8): (4, None),
+               (9, 10): (None, 5),
+               (10, 9): (29, None)
               }
 
 
@@ -182,7 +196,10 @@ class Pather():
             self.dst = None
             self.traveling = False
 
-            return 0, portal
+            if portal:
+                return 0, portal
+            else:
+                return self.next_direction()
 
         if self.traveling:
             logging.debug("route index: {}".format(self.index))
