@@ -1,4 +1,5 @@
 import logging
+import items
 from skill import get_next_code
 from page_parser import parse_items
 
@@ -30,18 +31,6 @@ DATA_POT = {'fact': "item", 'type': 220000}
 DATA_BORIS = {'action': "talk", 'target': 90010001}
 
 
-def _filter_potions(items):
-    potions = []
-    for item in items:
-        if 'potion' == item['type'][0]:
-            potions.append(item)
-    return potions
-
-
-def _worst_potion(potions):
-   return min(potions, key=lambda p: p['type'][1])
-
-
 def move(s, movedir, p):
     if p:
         return portal(s, p)
@@ -61,20 +50,18 @@ def portal(s, p):
 
 
 # higher level function, probably move to grind
-# TODO: take in hp param (less visit spam = faster)
 def heal(s, hp, target, overheal=False):
     """heal to full using weakest potions"""
     hp_curr, hp_max = hp
     hp_diff = hp_max * target - hp_curr
     if hp_curr / hp_max >= target:
-        return
+        return -1 # not in need of healing
 
-    items = parse_items(s.get(URL, params={'action': "items"}).content)
-    potions = _filter_potions(items)
-    if len(potions) > 0:
-        potion = _worst_potion(items)
-        # TODO: an algorithm using all available potions
-        # TODO: consider overheal
+    # TODO: an algorithm using all available potions
+    # TODO: consider overheal
+    potions = items.get_potions(s)
+    potion = items.worst_potion(potions)
+    if potion:
         count = int(min(hp_diff // potion['type'][1], potion['count'][0]))
 
         for _ in range(count):

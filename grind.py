@@ -29,12 +29,7 @@ SKILL_GOALS = {
     'Fortitude': 7,
     'Shockwave': 7
 }
-HP_TARGET = 0.9
-
-
-def heal_free(s, p):
-    p.clear_journey()
-    p.travel(p.CITY2)
+HP_TARGET = 0.95
 
 
 if __name__ == '__main__':
@@ -69,13 +64,13 @@ if __name__ == '__main__':
 
     logging.info("start")
     #page = act.idle(s)
-    page = act.mode_hunt(s)
+    page = act.mode_sneak(s)
     while True:
         game = parse_page(page.content)
+        logging.debug("gstate={}".format(game))
         utils.tick_delay()
 
         # TODO: oop
-        # TODO: use weakest pot before walking if low
         if game['state'] == "attack":
             logging.debug("battling")
             page = battle.battle(s, game['data'])
@@ -94,34 +89,44 @@ if __name__ == '__main__':
         elif game['state'] == "map":
             # default state, includes dialog (rip)
 
-            # disgusting
+            # this deserves its own state
             if pather.get_location() == pather.CITY2:
                 act.heal_boris(s)
+
             heal_count = act.heal(s, game['data']['hp'], HP_TARGET)
-            if heal_count == 0:
-                heal_free(s, pather)
+
+            # disgusting
+            hp_curr, hp_max = game['data']['hp']
+            if heal_count == 0 and hp_curr / hp_max < 0.4: # TODO: help
+                # go to boris
+                logging.info("low hp and low potions so sneaking to boris")
+                act.mode_sneak(s)
+                p.detour(p.CITY2)
+
+            # also rip, should be abstracted
+            if pather.get_location() == args.dst:
+                logging.info("reached destination to grind")
+                act.mode_hunt(s)
 
             if pather.get_destination() == None:
-              # pather.travel(pather.CAVE4) ## TODO: avoid adding current position to queue (causes portal bug)
-              # pather.travel(pather.CAVE5)
-              # pather.travel(pather.CAVE0)
-               pather.travel(args.dst)
-               #pather.travel(args.start)
-#               pather.travel(pather.JUNG1)
+                logging.info("currently no destination so going to arg dst")
+                pather.travel(args.dst)
+                #pather.travel(args.start)
+                #pather.travel(pather.JUNG1)
             direction, p = pather.next_direction()
-            #exit(0) # debug pathing
+            exit(0) # debug pathing
             logging.info("move: {} {}".format(direction, p))
             page = act.move(s, direction, p)
         else:
-            logging.info("unhandled state")
+            logging.critical("unhandled state")
             exit(-1)
 
-        #logdata = page_trim(page.content)
-        logdata = page.content.decode('utf-8')
+        logdata = page_trim(page.content)
+        #logdata = page.content.decode('utf-8')
         with open('/tmp/p.html', 'w') as fp:
             fp.write(logdata)
         if args.verbosity == 4:
-            logname = '/tmp/p' + str(round(time.time() * 10))[6:] + '.html'
+            logname = '/tmp/p' + str(round(time.time() * 10))[8:] + '.html'
             with open(logname, 'w') as fp:
                 fp.write(logdata)
 

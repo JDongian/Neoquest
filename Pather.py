@@ -14,8 +14,15 @@ R_78 = "22355535322353"
 R_89 = "555"
 R_910 = "7" * 5 + "88" + "5" * 6
 R_1011 = "5" * 4 + "87" + "8" * 5 + "7" * 4 + "8" * 7 + "555" + "3" * 9 + "5" + "2" * 4 + "3" * 4
-R_1112 = "5" * 6 + "8" * 5 + "7" * 7 + "6" * 4 + "7" * 3 + "5886777767777887777677" + "66646" + "4" * 9 + "1" + "4" * 3 + "1" * 4 + "6" * 4 + "4411222"
+R_1112 = "5" * 6 + "8" * 5 + "7" * 7 + "6" * 4 + "7" * 3 + "5886777767777887777677" + "66646" + "4" * 9 + "1" + "4" * 3 + "1" * 4 + "6" * 4 + "44111222"
+R_J67 = "44221444112322233555588833588777788323223355538877777"
+R_J70 = "7" * 4
+R_1310 = "14"
 R_C12 = "1"
+R_V0S1 = "4" * 11 + "666" + "4" * 11 + "666467666666"
+R_S10 = "444"
+R_S1D1 = "78888" + "77777"
+R_D1R1 = "77777676885553"
 
 
 def _format(route):
@@ -27,6 +34,8 @@ def _invert(route):
 
 
 class Pather():
+    # why is this so bad
+    # TODO: str name mapping
     CITY2 = 100 # boris the healer
     CITY1 = 0
     CAVE0 = 6 # outside cave at level 0
@@ -40,80 +49,106 @@ class Pather():
     JUNG3 = 9 # jung dung 2 entrance
     JUNG4 = 10 # jung dung 3 entrance
     JUNG5 = 11 # jung dung 3 top left right corner -1
-    LOOP = _format("72")
-    # TODO: specify portal usage explicity in a route
-    # TODO: replace magic numbers with variable names
-    # TODO: don't add to travel_queue for loop, instead have a dedicated loop(pos) method
-    # TODO: check route efficiency (score based on edge length)
-    # TODO: more advanced queuing is needed at the upper level (pathing may be too efficient)
-    EDGES = {(0, 100): _format(R_C12),
-             (100, 0): _invert(_format(R_C12)),
-             (0, 0): _format("44" + "27" * 4 + "55"),
-             (0, 1): _format(R_01),
-             (1, 0): _invert(_format(R_01)),
-             (1, 1): LOOP,
-             (1, 2): _format(R_12),
-             (2, 1): _invert(_format(R_12)),
-             (2, 2): LOOP,
-             (2, 3): _format(R_23),
-             (3, 2): _invert(_format(R_23)),
-             (3, 3): LOOP,
-             (3, 4): _format(R_34),
-             (4, 3): _invert(_format(R_34)),
-             (4, 4): LOOP,
-             (4, 5): _format(R_45),
-             (5, 5): LOOP,
-             (5, 6): _format(R_56),
-             (6, 5): _invert(_format(R_56)),
-             (6, 6): LOOP,
-             (7, 7): LOOP,
-             (8, 8): LOOP,
-             (9, 9): LOOP,
-             (10, 10): "59999994",
-             (11, 11): "59999994",
-             (12, 12): "59999994",
-             (1, 6): [],
-             (6, 1): [],
-             (0, 6): _format(R_01),
-             (6, 0): _invert(_format(R_01)),
-             (0, 7): _format(R_07),
-             (7, 0): _invert(_format(R_07)),
-             (7, 8): _format(R_78),
-             (8, 7): _invert(_format(R_78)),
-             (8, 9): _format(R_89),
-             (9, 8): _invert(_format(R_89)),
-             (9, 10): _format(R_910),
-             (10, 9): _invert(_format(R_910)),
-             (10, 11): _format(R_1011),
-             (11, 10): _invert(_format(R_1011)),
-             (11, 12): _format(R_1112),
-             (12, 11): _invert(_format(R_1112))
+    JUNG6 = 12 # jung dung 3 below npc
+    JUNG7 = 13 # jung grind before portal
+    JUNG0 = 14 # after jung dung portal
+    SWMP0 = 15 # swamp city
+    SWMP1 = 17 # swamp hills level 0 grinding
+    DSRT1 = 20 # desert level 0 grinding
+    TROO1 = 21 # roo level 1 entrance
+
+    LOOP0 = _format("9")
+    LOOP1 = _format("7" + "9" * 8 + "2")
+    LOOP2 = _format("5" + "9" * 8 + "4")
+    LOOP3 = _format("4" + "9" * 8 + "5")
+    LOOP4 = _format("44" + "9" * 8 + "55")
+
+    LOOPS = {CITY1: LOOP4,
+             CITY2: LOOP3,
+             CAVE1: LOOP1,
+             CAVE2: LOOP1,
+             CAVE3: LOOP1,
+             CAVE4: LOOP1,
+             CAVE5: LOOP1,
+             CAVE0: LOOP1,
+             JUNG1: LOOP1,
+             JUNG2: LOOP1,
+             JUNG3: LOOP1,
+             JUNG4: LOOP2,
+             JUNG5: LOOP0,
+             JUNG6: LOOP0,
+             JUNG7: LOOP0,
+             JUNG0: LOOP0,
+             SWMP1: LOOP3,
+             DSRT1: LOOP0,
+             TROO1: LOOP2,
             }
-    PORTALS = {(0, 1): (None, 1),
-               (1, 0): (1, None),
-               (1, 2): (None, 2),
-               (2, 1): (2, None),
-               (2, 3): (None, 4),
-               (3, 2): (4, None),
-               (3, 4): (None, 6),
-               (4, 3): (6, None),
-               (4, 5): (None, 8),
-               (5, 6): (None, 1),
-               (6, 5): (1, None),
-               (1, 6): (1, None),
-               (6, 1): (None, 1),
-               (0, 7): (None, 2),
-               (7, 0): (1, None),
-               (7, 8): (None, 3),
-               (8, 7): (1, None),
-               (8, 9): (None, 2),
-               (9, 8): (4, None),
-               (9, 10): (None, 5),
-               (10, 9): (29, None),
-               (10, 11): (None, None),
-               (11, 10): (None, None),
-               (11, 12): (None, None),
-               (12, 11): (None, None)
+    EDGES = {(CITY1, CITY2): _format(R_C12),
+             (CITY2, CITY1): _invert(_format(R_C12)),
+             (CITY1, CAVE1): _format(R_01),
+             (CAVE1, CITY1): _invert(_format(R_01)),
+             (CAVE1, CAVE2): _format(R_12),
+             (CAVE2, CAVE1): _invert(_format(R_12)),
+             (CAVE2, CAVE3): _format(R_23),
+             (CAVE3, CAVE2): _invert(_format(R_23)),
+             (CAVE3, CAVE4): _format(R_34),
+             (CAVE4, CAVE3): _invert(_format(R_34)),
+             (CAVE4, CAVE5): _format(R_45),
+             (CAVE5, CAVE0): _format(R_56),
+             (CAVE0, CAVE5): _invert(_format(R_56)),
+             (CAVE1, CAVE0): [],
+             (CAVE0, CAVE1): [],
+             (CITY1, CAVE0): _format(R_01),
+             (CAVE0, CITY1): _invert(_format(R_01)),
+             (CITY1, JUNG1): _format(R_07),
+             (JUNG1, CITY1): _invert(_format(R_07)),
+             (JUNG1, JUNG2): _format(R_78),
+             (JUNG2, JUNG1): _invert(_format(R_78)),
+             (JUNG2, JUNG3): _format(R_89),
+             (JUNG3, JUNG2): _invert(_format(R_89)),
+             (JUNG3, JUNG4): _format(R_910),
+             (JUNG4, JUNG3): _invert(_format(R_910)),
+             (JUNG4, JUNG5): _format(R_1011),
+             (JUNG5, JUNG4): _invert(_format(R_1011)),
+             (JUNG5, JUNG6): _format(R_1112),
+             (JUNG6, JUNG5): _invert(_format(R_1112)),
+             (JUNG6, JUNG7): _format(R_J67),
+             (JUNG7, JUNG6): _invert(_format(R_J67)),
+             (JUNG7, JUNG0): _format(R_J70),
+             (JUNG0, JUNG4): _format(R_1310),
+             (CAVE0, SWMP1): _format(R_V0S1),
+             (SWMP1, CAVE0): _invert(_format(R_V0S1)),
+             (SWMP1, SWMP0): _format(R_S10),
+             (SWMP0, SWMP1): _invert(_format(R_S10)),
+             (SWMP1, DSRT1): _format(R_S1D1),
+             (DSRT1, SWMP1): _invert(_format(R_S1D1)),
+             (DSRT1, TROO1): _format(R_D1R1),
+             (TROO1, DSRT1): _invert(_format(R_D1R1))
+            }
+    PORTALS = {(CITY1, CAVE1): (None, 1),
+               (CAVE1, CITY1): (1, None),
+               (CAVE1, CAVE2): (None, 2),
+               (CAVE2, CAVE1): (2, None),
+               (CAVE2, CAVE3): (None, 4),
+               (CAVE3, CAVE2): (4, None),
+               (CAVE3, CAVE4): (None, 6),
+               (CAVE4, CAVE3): (6, None),
+               (CAVE4, CAVE5): (None, 8),
+               (CAVE5, CAVE0): (None, 1),
+               (CAVE0, CAVE5): (1, None),
+               (CAVE1, CAVE0): (1, None),
+               (CAVE0, CAVE1): (None, 1),
+               (CITY1, JUNG1): (None, 2),
+               (JUNG1, CITY1): (1, None),
+               (JUNG1, JUNG2): (None, 3),
+               (JUNG2, JUNG1): (1, None),
+               (JUNG2, JUNG3): (None, 2),
+               (JUNG3, JUNG2): (4, None),
+               (JUNG3, JUNG4): (None, 5),
+               (JUNG4, JUNG3): (29, None),
+               (JUNG7, JUNG0): (None, 30),
+               (DSRT1, TROO1): (None, 31), #
+               (TROO1, DSRT1): (1, None) #
               }
 
 
@@ -140,8 +175,8 @@ class Pather():
 
     def _waypoints(self, frm, to, visited):
         if frm == to:
-            logging.warn("self-edge used for {}".format(frm))
-            return []
+            logging.critical("self-edge used for {}".format(frm))
+            return [frm]
         if (frm, to) in self.EDGES:
             logging.debug("edge found for {}->{}".format(frm, to))
             return [frm]
@@ -158,18 +193,31 @@ class Pather():
             logging.debug("no path found from: {}".format(frm))
             return [] # spooky
 
+        paths = []
         for _, dst in candidates:
-            trial = self._waypoints(dst, to, visited)
-            if trial and len(trial) >= 1:
-                return [frm] + trial
+            trial = [frm] + self._waypoints(dst, to, visited.copy())
+            if trial and len(trial) >= 2:
+                paths.append(trial)
+
+        if paths:
+            logging.debug("best path for {}->{} is {}".format(frm, to, min(paths, key=lambda p: len(p))))
+        else:
+            logging.debug("no path for {}->{}".format(frm, to))
+
+        return min(paths, key=lambda p: len(p)) if paths else []
 
 
+    # begs to be memoized
     def waypoints(self, frm, to):
         return self._waypoints(frm, to, set())[1:]
 
 
     def travel(self, dst):
         self.travel_queue.append(dst)
+
+
+    def detour(self, dst):
+        self.travel_queue.insert(0, dst)
 
 
     def next_direction(self):
@@ -182,17 +230,24 @@ class Pather():
 
             next_dst = self.travel_queue[0]
 
-            if (self.pos, next_dst) in self.EDGES:
-                # TODO:deadcode self.is_looping = self.pos == next_dst
+            if self.pos == next_dst:
+                # TODO:deadcode self.is_looping = True
                 self.index = 0
-                self.route = self.EDGES[(self.pos, next_dst)]
-                self.portal = self.PORTALS.get((self.pos, next_dst), (None, None))
-                self.pos = None
+                self.route = self.LOOPS.get(self.pos, self.LOOP1) # meh
+                self.portal = None, None
                 self.dst = next_dst
                 self.traveling = True
                 self.travel_queue = self.travel_queue[1:]
-                logging.debug("travel queue update: {}(-{})".format(self.travel_queue, self.dst))
-
+                logging.debug("waypoint update (looping) {}(-{})".format(self.travel_queue, self.dst))
+                return self.next_direction()
+            elif (self.pos, next_dst) in self.EDGES:
+                self.index = 0
+                self.route = self.EDGES[(self.pos, next_dst)]
+                self.portal = self.PORTALS.get((self.pos, next_dst), (None, None))
+                self.dst = next_dst
+                self.traveling = True
+                self.travel_queue = self.travel_queue[1:]
+                logging.debug("waypoint update {}(-{})".format(self.travel_queue, self.dst))
                 return self.next_direction()
             elif False:
                 # handle loops to self
@@ -221,6 +276,7 @@ class Pather():
         if self.traveling:
             logging.debug("route index: {}".format(self.index))
 
+            self.pos = None
             portal, portal_end = self.portal
             if portal and self.index == 0:
                 self.portal = None, portal_end

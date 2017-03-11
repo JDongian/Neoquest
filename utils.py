@@ -78,4 +78,5 @@ def normal(n=20):
 
 
 def tick_delay():
-    time.sleep(0.0 + normal() * 0.1)
+    #time.sleep(0.0 + normal() * 0.1)
+    pass

@@ -27,7 +27,7 @@ URL_SKILLS = "http://www.neopets.com/games/neoquest/neoquest.phtml?action=skill"
 
 def get_next_code(s, goals):
     parse_skills(s.get(URL_SKILLS).content)
-    skill = 'Fortitude'
+    skill = 'Disable'
     #TODO: logic
     logging.debug("level up: {skill}".format(skill=skill))
     return SKILL_CODES[skill]
