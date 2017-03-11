@@ -27,10 +27,12 @@ def battle(s, gdata):
     if gdata['stunned']:
         page = act.do_nothing(s)
     elif _at_risk(gdata['hp']):
-        potion = best_potion(gdata['potions'])
-        logging.info("drink potion ({})".format(potion - 220000))
-        page = act.use_potion(s, potion)
+        if len(gdata['potions']) == 0:
+            page = act.flee(s)
+        else:
+            potion = best_potion(gdata['potions'])
+            logging.info("drink potion ({})".format(potion - 220000))
+            page = act.use_potion(s, potion)
     else:
         page = act.attack(s)
     return page
-

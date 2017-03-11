@@ -38,9 +38,8 @@ def parse_page(html):
     if ID_ATT in text:
         names = [e.next.next for e in info.find_all('font')]
         stunned = text.find(">Attack</a>") == -1
-        potions = re.findall(RE_POT, text)
-        data['data'].update({'hp': data['hp'][1:], #TODO: verify correct
-                             'names': names,
+        potions = [[int(e) for e in res] for res in re.findall(RE_POT, text)]
+        data['data'].update({'names': names,
                              'stunned': stunned,
                              'potions': potions})
         data['state'] = "attack"

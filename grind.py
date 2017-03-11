@@ -29,6 +29,12 @@ SKILL_GOALS = {
     'Fortitude': 7,
     'Shockwave': 7
 }
+HP_TARGET = 0.9
+
+
+def heal_free(s, p):
+    p.clear_journey()
+    p.travel(p.CITY2)
 
 
 if __name__ == '__main__':
@@ -82,21 +88,30 @@ if __name__ == '__main__':
         elif game['state'] == "end_fight":
             logging.info("battle end")
             page = act.end_fight(s)
+        elif game['state'] == "skill":
+            logging.info("level up")
+            page = act.level_up(s, None)
         elif game['state'] == "map":
-            act.heal(s, game['data']['hp'])
+            # default state, includes dialog (rip)
+
+            # disgusting
+            if pather.get_location() == pather.CITY2:
+                act.heal_boris(s)
+            heal_count = act.heal(s, game['data']['hp'], HP_TARGET)
+            if heal_count == 0:
+                heal_free(s, pather)
+
             if pather.get_destination() == None:
               # pather.travel(pather.CAVE4) ## TODO: avoid adding current position to queue (causes portal bug)
               # pather.travel(pather.CAVE5)
               # pather.travel(pather.CAVE0)
                pather.travel(args.dst)
+               #pather.travel(args.start)
 #               pather.travel(pather.JUNG1)
             direction, p = pather.next_direction()
-            exit(0) # debug pathing
+            #exit(0) # debug pathing
             logging.info("move: {} {}".format(direction, p))
             page = act.move(s, direction, p)
-        elif game['state'] == "skill":
-            logging.info("level up")
-            page = act.level_up(s, None)
         else:
             logging.info("unhandled state")
             exit(-1)

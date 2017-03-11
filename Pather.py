@@ -9,10 +9,13 @@ R_34 = "555877778532222358777785322223558777877776766785877764444411141144441441
 R_45 = "22146777787855558853222222112214444444466677777777858855555555555322323222222211221441144464444444444"
 R_56 = "1"
 # 2457
-R_07 = "7" * 8 + "6" * 3 + "7" * 5  + "65555885" # TODO: check 7x5
+R_07 = "7" * 8 + "6" * 3 + "7" * 5  + "85555885"
 R_78 = "22355535322353"
 R_89 = "555"
 R_910 = "7" * 5 + "88" + "5" * 6
+R_1011 = "5" * 4 + "87" + "8" * 5 + "7" * 4 + "8" * 7 + "555" + "3" * 9 + "5" + "2" * 4 + "3" * 4
+R_1112 = "5" * 6 + "8" * 5 + "7" * 7 + "6" * 4 + "7" * 3 + "5886777767777887777677" + "66646" + "4" * 9 + "1" + "4" * 3 + "1" * 4 + "6" * 4 + "4411222"
+R_C12 = "1"
 
 
 def _format(route):
@@ -24,24 +27,28 @@ def _invert(route):
 
 
 class Pather():
+    CITY2 = 100 # boris the healer
     CITY1 = 0
+    CAVE0 = 6 # outside cave at level 0
     CAVE1 = 1 # inside cave at level 1
     CAVE2 = 2 # beginning of upper temple
     CAVE3 = 3 # beginning of lower temple
     CAVE4 = 4 # beginning of maze
     CAVE5 = 5 # portal exit after cave maze at level 1
-    CAVE0 = 6 # outside cave at level 0
     JUNG1 = 7 # entrance of jung
     JUNG2 = 8 # jung dung 1 entrance
     JUNG3 = 9 # jung dung 2 entrance
     JUNG4 = 10 # jung dung 3 entrance
-    LOOP = _format("27")
+    JUNG5 = 11 # jung dung 3 top left right corner -1
+    LOOP = _format("72")
     # TODO: specify portal usage explicity in a route
     # TODO: replace magic numbers with variable names
     # TODO: don't add to travel_queue for loop, instead have a dedicated loop(pos) method
     # TODO: check route efficiency (score based on edge length)
     # TODO: more advanced queuing is needed at the upper level (pathing may be too efficient)
-    EDGES = {(0, 0): _format("44" + "27"*4 + "55"),
+    EDGES = {(0, 100): _format(R_C12),
+             (100, 0): _invert(_format(R_C12)),
+             (0, 0): _format("44" + "27" * 4 + "55"),
              (0, 1): _format(R_01),
              (1, 0): _invert(_format(R_01)),
              (1, 1): LOOP,
@@ -62,7 +69,9 @@ class Pather():
              (7, 7): LOOP,
              (8, 8): LOOP,
              (9, 9): LOOP,
-             (10, 10): LOOP,
+             (10, 10): "59999994",
+             (11, 11): "59999994",
+             (12, 12): "59999994",
              (1, 6): [],
              (6, 1): [],
              (0, 6): _format(R_01),
@@ -74,7 +83,11 @@ class Pather():
              (8, 9): _format(R_89),
              (9, 8): _invert(_format(R_89)),
              (9, 10): _format(R_910),
-             (10, 9): _invert(_format(R_910))
+             (10, 9): _invert(_format(R_910)),
+             (10, 11): _format(R_1011),
+             (11, 10): _invert(_format(R_1011)),
+             (11, 12): _format(R_1112),
+             (12, 11): _invert(_format(R_1112))
             }
     PORTALS = {(0, 1): (None, 1),
                (1, 0): (1, None),
@@ -89,8 +102,6 @@ class Pather():
                (6, 5): (1, None),
                (1, 6): (1, None),
                (6, 1): (None, 1),
-               (0, 6): (None, None),
-               (6, 0): (None, None),
                (0, 7): (None, 2),
                (7, 0): (1, None),
                (7, 8): (None, 3),
@@ -98,7 +109,11 @@ class Pather():
                (8, 9): (None, 2),
                (9, 8): (4, None),
                (9, 10): (None, 5),
-               (10, 9): (29, None)
+               (10, 9): (29, None),
+               (10, 11): (None, None),
+               (11, 10): (None, None),
+               (11, 12): (None, None),
+               (12, 11): (None, None)
               }
 
 
@@ -161,8 +176,7 @@ class Pather():
         if self.dst == None:
             if len(self.travel_queue) == 0:
                 # send ourselves in circles
-                logging.warn("queried direction without destination")
-                logging.info("traveling in circles")
+                logging.info("circling due to no destination")
                 self.travel(self.pos)
                 return self.next_direction()
 
@@ -180,6 +194,9 @@ class Pather():
                 logging.debug("travel queue update: {}(-{})".format(self.travel_queue, self.dst))
 
                 return self.next_direction()
+            elif False:
+                # handle loops to self
+                pass
             else:
                 logging.debug("generating path {}->{}".format(self.pos, next_dst))
                 for waypoint in reversed(self.waypoints(self.pos, next_dst)):

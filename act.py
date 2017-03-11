@@ -22,23 +22,32 @@ URL = "http://www.neopets.com/games/neoquest/neoquest.phtml"
 
 DATA_ATT = {'fact': "attack", 'type': 0}
 DATA_NOP = {'fact': "noop", 'type': 0}
+DATA_FLEE = {'fact': "flee", 'type': 0}
 DATA_END = {'end_fight': 1}
 DATA_HUNT = {'movetype': 2}
 DATA_SNEAK = {'movetype': 3}
 DATA_POT = {'fact': "item", 'type': 220000}
+DATA_BORIS = {'action': "talk", 'target': 90010001}
 
 
-def _worst_potion(items):
+def _filter_potions(items):
     potions = []
     for item in items:
         if 'potion' == item['type'][0]:
             potions.append(item)
-    return min(potions, key=lambda p: p['type'][1])
+    return potions
+
+
+def _worst_potion(potions):
+   return min(potions, key=lambda p: p['type'][1])
 
 
 def move(s, movedir, p):
     if p:
         return portal(s, p)
+
+    if movedir == 9:
+        grind(s)
 
     # if movedir in DIR:
     #     movedir = DIR[movedir]
@@ -53,20 +62,33 @@ def portal(s, p):
 
 # higher level function, probably move to grind
 # TODO: take in hp param (less visit spam = faster)
-def heal(s, hp, overheal=False):
+def heal(s, hp, target, overheal=False):
     """heal to full using weakest potions"""
     hp_curr, hp_max = hp
-    hp_diff = hp_max - hp_curr
-    items = parse_items(s.get(URL, params={'action': "items"}).content)
-    potion = _worst_potion(items)
-    # TODO: an algorithm using all available potions
-    # TODO: consider overheal
-    count = min(hp_diff // potion['type'][1], potion['count'][0])
+    hp_diff = hp_max * target - hp_curr
+    if hp_curr / hp_max >= target:
+        return
 
-    for _ in range(count):
-        logging.info("drinking potion (+{})".format(potion['type'][1]))
-        s.get(BASE_URL + potion['action'])
-        # time.sleep(1)
+    items = parse_items(s.get(URL, params={'action': "items"}).content)
+    potions = _filter_potions(items)
+    if len(potions) > 0:
+        potion = _worst_potion(items)
+        # TODO: an algorithm using all available potions
+        # TODO: consider overheal
+        count = int(min(hp_diff // potion['type'][1], potion['count'][0]))
+
+        for _ in range(count):
+            logging.info("drinking potion (+{})".format(potion['type'][1]))
+            s.get(BASE_URL + potion['action'])
+            # time.sleep(1)
+        return count
+    else:
+        logging.warn("no potions left to heal with")
+        return 0
+
+
+def heal_boris(s):
+    return s.get(URL, params=DATA_BORIS)
 
 
 def idle(s):
@@ -98,6 +120,10 @@ def use_potion(s, potency):
 
 def do_nothing(s):
     return s.post(URL, data=DATA_NOP)
+
+
+def flee(s):
+    return s.post(URL, data=DATA_FLEE)
 
 
 def begin_fight(s):
