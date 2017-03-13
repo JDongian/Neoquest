@@ -19,11 +19,14 @@ R_J67 = "44221444112322233555588833588777788323223355538877777"
 R_J70 = "7" * 4
 R_1310 = "14"
 R_C12 = "1"
-R_V0S1 = "4" * 11 + "666" + "4" * 11 + "666467666666"
-R_S10 = "444"
-R_S1D1 = "78888" + "77777"
+R_V0S1 = "4" * 11 + "66" + "4" * 11 + "6664676666667"
+R_S10 = "644"
+R_S1D1 = "888877777"
 R_D1R1 = "77777676885553"
-
+R_R12 = "5" * 25 + "335555558"
+R_R23 = "5" * 5 + "35535585533323335555885585855553555555333555588777777"
+R_R34 = "7" * 15 + "6" + "4" * 38
+R_R45 = "7" * 9 + "644676" + "4" * 13 + "6776" + "4" * 11 + "1333233" + "1" * 5 + "412223335335555535553555555553555533355533"
 
 def _format(route):
     return [int(d) for d in route]
@@ -52,10 +55,14 @@ class Pather():
     JUNG6 = 12 # jung dung 3 below npc
     JUNG7 = 13 # jung grind before portal
     JUNG0 = 14 # after jung dung portal
-    SWMP0 = 15 # swamp city
-    SWMP1 = 17 # swamp hills level 0 grinding
+    SWMP0 = 15 # swamp city (hills?)
+    SWMP1 = 17 # swamp level 0 grinding waypoint
     DSRT1 = 20 # desert level 0 grinding
     TROO1 = 21 # roo level 1 entrance
+    TROO2 = 22 # roo level 1 erik
+    TROO3 = 23 # roo level 1 main floor
+    TROO4 = 24 # roo level 1 after runs
+    TROO5 = 25 # roo level 2 entrance
 
     LOOP0 = _format("9")
     LOOP1 = _format("7" + "9" * 8 + "2")
@@ -79,9 +86,14 @@ class Pather():
              JUNG6: LOOP0,
              JUNG7: LOOP0,
              JUNG0: LOOP0,
-             SWMP1: LOOP3,
+             #SWMP0: LOOP2,
+             SWMP1: LOOP0,
              DSRT1: LOOP0,
-             TROO1: LOOP2,
+             TROO1: LOOP0,
+             TROO2: LOOP0,
+             TROO3: LOOP0,
+             TROO4: LOOP0,
+             TROO5: LOOP2,
             }
     EDGES = {(CITY1, CITY2): _format(R_C12),
              (CITY2, CITY1): _invert(_format(R_C12)),
@@ -123,7 +135,15 @@ class Pather():
              (SWMP1, DSRT1): _format(R_S1D1),
              (DSRT1, SWMP1): _invert(_format(R_S1D1)),
              (DSRT1, TROO1): _format(R_D1R1),
-             (TROO1, DSRT1): _invert(_format(R_D1R1))
+             (TROO1, DSRT1): _invert(_format(R_D1R1)),
+             (TROO1, TROO2): _format(R_R12),
+             (TROO2, TROO1): _invert(_format(R_R12)),
+             (TROO2, TROO3): _format(R_R23),
+             (TROO3, TROO2): _invert(_format(R_R23)),
+             (TROO3, TROO4): _format(R_R34),
+             (TROO4, TROO3): _invert(_format(R_R34)),
+             (TROO4, TROO5): _format(R_R45),
+             (TROO5, TROO4): _invert(_format(R_R45))
             }
     PORTALS = {(CITY1, CAVE1): (None, 1),
                (CAVE1, CITY1): (1, None),
@@ -147,8 +167,10 @@ class Pather():
                (JUNG3, JUNG4): (None, 5),
                (JUNG4, JUNG3): (29, None),
                (JUNG7, JUNG0): (None, 30),
-               (DSRT1, TROO1): (None, 31), #
-               (TROO1, DSRT1): (1, None) #
+               (DSRT1, TROO1): (None, 3),
+               (TROO1, DSRT1): (3, None),
+               (TROO4, TROO5): (None, 6),
+               (TROO5, TROO4): (1, None)
               }
 
 
@@ -156,7 +178,7 @@ class Pather():
         #self.is_looping = False # TODO: deadcode
         self.index = 0
         self.route = None
-        self.portal = None
+        self.portal = None, None
         self.pos = pos
         self.dst = None
         self.traveling = False
@@ -226,7 +248,8 @@ class Pather():
                 # send ourselves in circles
                 logging.info("circling due to no destination")
                 self.travel(self.pos)
-                return self.next_direction()
+                return 9, None
+                #return self.next_direction()
 
             next_dst = self.travel_queue[0]
 
@@ -263,7 +286,7 @@ class Pather():
             _, portal = self.portal
             self.index = 0
             self.route = None
-            self.portal = None
+            self.portal = None, None
             self.pos = self.dst
             self.dst = None
             self.traveling = False
@@ -274,7 +297,7 @@ class Pather():
                 return self.next_direction()
 
         if self.traveling:
-            logging.debug("route index: {}".format(self.index))
+            logging.debug("route index is {}".format(self.index))
 
             self.pos = None
             portal, portal_end = self.portal

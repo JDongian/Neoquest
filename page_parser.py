@@ -105,11 +105,23 @@ def page_trim(html):
     #parsed_html.body.find(attrs={'class': 'sidebar'}).extract()
     #parsed_html.body.find(attrs={'class': 'phpGamesTowerAd'}).extract()
 
-    r =  re.sub("""<div id="pushdown_banner".*<div id="content">""",
-                """<div id="content" style="background-color:#FDFDFD">""",
-                html.decode(), flags=re.DOTALL)
+    r = re.sub("""<div id="pushdown_banner".*<div id="content">""",
+               """<div id="content" style="background-color:#FDFDFD">""",
+               html.decode(), flags=re.DOTALL)
 
-    r =  re.sub("""<div class="phpGamesTowerAd">.*?div>.*?div>""",
-                "", r, flags=re.DOTALL)
+    r = re.sub("""<div class="phpGamesTowerAd">.*?div>.*?div>""",
+               "", r, flags=re.DOTALL)
+
+    r = re.sub("""<div id="footer.*?(<script)""",
+               r"\1", r, flags=re.DOTALL)
+
+    r = re.sub("""<div class="ban_bottom.*?(<div style="display)""",
+               r"\1", r, flags=re.DOTALL)
+
+    # streamario
+    r = re.sub("""<td align="center" class="sidebar" width="178">"""
+               """.*?(<td class="content)""", r"\1", r, flags=re.DOTALL)
+
+    r = re.sub("""Name: <B>.*?</B> |""", "", r, flags=re.DOTALL)
 
     return r

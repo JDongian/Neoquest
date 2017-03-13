@@ -7,14 +7,33 @@ import battle
 from page_parser import parse_page, page_trim
 from Pather import Pather
 
+
 #SKILL_GOALS = {
-#    'Fire Weapons': 7,
-#    'Firepower': 7,
-#    'Ice Weapons': 7,
-#    'Shock Weapons': 7,
-#    'Disable': 7,
-#    'Fortitude' 7,
-#    'Shockwave': 7
+#    'Life Weapons': 10,
+#    'Field Medic': 1,
+#    'Lifesteal': 1,
+#    'Ice Weapons': 1,
+#    'Heart of Ice': 1,
+#    'Shock Weapons': 9,
+#    'Disable': 9,
+#    'Fortitude': 9,
+#    'Shockwave': 9
+#}
+
+#SKILL_GOALS = {
+#    'Life Weapons': 10,
+#    'Field Medic': 1,
+#    'Lifesteal': 1,
+#    'Ice Weapons': 1,
+#    'Heart of Ice': 1,
+#    'Spectral Weapons': 1,
+#    'Evasion': 1,
+#    'Absorption': 1,
+#    'Reflex': 1,
+#    'Shock Weapons': 8,
+#    'Disable': 8,
+#    'Fortitude': 8,
+#    'Shockwave': 8
 #}
 SKILL_GOALS = {
     'Spectral Weapons': 3,
@@ -104,6 +123,7 @@ if __name__ == '__main__':
                 p.detour(p.CITY2)
 
             # also rip, should be abstracted
+            # TODO: debug
             if pather.get_location() == args.dst:
                 logging.info("reached destination to grind")
                 act.mode_hunt(s)
@@ -114,7 +134,7 @@ if __name__ == '__main__':
                 #pather.travel(args.start)
                 #pather.travel(pather.JUNG1)
             direction, p = pather.next_direction()
-            exit(0) # debug pathing
+            #exit(0) # debug pathing
             logging.info("move: {} {}".format(direction, p))
             page = act.move(s, direction, p)
         else:
@@ -126,7 +146,7 @@ if __name__ == '__main__':
         with open('/tmp/p.html', 'w') as fp:
             fp.write(logdata)
         if args.verbosity == 4:
-            logname = '/tmp/p' + str(round(time.time() * 10))[8:] + '.html'
+            logname = '/tmp/p' + str(round(time.time() * 10))[7:] + '.html'
             with open(logname, 'w') as fp:
                 fp.write(logdata)
 
