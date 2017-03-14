@@ -7,6 +7,13 @@ import battle
 from page_parser import parse_page, page_trim
 from Pather import Pather
 
+# TODO: log encounters
+M_ROO = ["ghastly initiate",
+         "ghastly adept",
+         "ghastly priest",
+         "ghastly master",
+         "ghastly archon",
+         "ghastly templar"]
 
 #SKILL_GOALS = {
 #    'Life Weapons': 10,
@@ -51,7 +58,7 @@ SKILL_GOALS = {
 HP_TARGET = 0.95
 
 
-if __name__ == '__main__':
+def init():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--start",
                         type=int, default=-1,
@@ -75,15 +82,45 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(format='\x1b[31m%(levelname)s\x1b[39m:%(message)s', level=logging.DEBUG)
 
+    return args
+
+
+def get_next_dst(p, maze_lvl):
+    if maze_lvl == 0:
+        return p.TRM11
+    if maze_lvl == 1:
+        return p.TRM12
+    if maze_lvl == 2:
+        return p.TRM13
+    if maze_lvl == 3:
+        return p.TRM14
+    if maze_lvl == 4:
+        return p.TRM15
+    if maze_lvl == 5:
+        return p.TRM16
+    if maze_lvl == 6:
+        return p.TROO0
+
+    return p.pos
+
+
+if __name__ == '__main__':
+    args = init()
+
     s = utils.login()
     if not s:
         exit(-1)
-    #pather = Pather(Pather.CITY1)
+
     pather = Pather(args.start)
+    pather.travel(args.dst)
 
     logging.info("start")
-    #page = act.idle(s)
     page = act.mode_sneak(s)
+
+    roo_maze_lvl = 7
+
+    next_dst = args.dst
+
     while True:
         game = parse_page(page.content)
         logging.debug("gstate={}".format(game))
@@ -91,7 +128,13 @@ if __name__ == '__main__':
 
         # TODO: oop
         if game['state'] == "attack":
-            logging.debug("battling")
+            if roo_maze_lvl < 6:
+                # roo keys not all obtained
+                if M_ROO[roo_maze_lvl] in game['data']['names'][1]:
+                    logging.debug("roo_maze++")
+                    roo_maze_lvl += 1
+
+            logging.debug("battling {}".format(game['data']['names'][1]))
             page = battle.battle(s, game['data'])
         elif game['state'] == "begin_fight":
             logging.info("battle start")
@@ -109,7 +152,7 @@ if __name__ == '__main__':
             # default state, includes dialog (rip)
 
             # this deserves its own state
-            if pather.get_location() == pather.CITY2:
+            if pather.pos == pather.CITY2:
                 act.heal_boris(s)
 
             heal_count = act.heal(s, game['data']['hp'], HP_TARGET)
@@ -122,17 +165,21 @@ if __name__ == '__main__':
                 act.mode_sneak(s)
                 p.detour(p.CITY2)
 
+
             # also rip, should be abstracted
             # TODO: debug
-            if pather.get_location() == args.dst:
-                logging.info("reached destination to grind")
-                act.mode_hunt(s)
+            if len(pather.travel_queue) == 0:
+                logging.info("travel queue empty and pos={}".format(pather.pos))
+                #next_dst = get_next_dst(pather, roo_maze_lvl) # eventually add back
+                #if pather.pos != next_dst:
+                #    logging.info("but not reached destination {}".format(next_dst))
+                #    pather.travel(next_dst)
+                #    act.mode_sneak(s) # eventually remove
 
-            if pather.get_destination() == None:
-                logging.info("currently no destination so going to arg dst")
-                pather.travel(args.dst)
-                #pather.travel(args.start)
-                #pather.travel(pather.JUNG1)
+            if pather.pos == next_dst:
+                logging.info("reached destination")
+                act.mode_hunt(s) # eventually replace with sneak many mode
+
             direction, p = pather.next_direction()
             #exit(0) # debug pathing
             logging.info("move: {} {}".format(direction, p))

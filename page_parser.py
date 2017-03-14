@@ -44,7 +44,7 @@ def parse_page(html):
 
     if ID_ATT in text:
         names = [e.next.next for e in info.find_all('font')]
-        stunned = text.find(">Attack</a>") == -1
+        stunned = text.find(">Attack</a>") == -1 # TODO: check
         potions = _format_potions([[int(e) for e in res] for res in re.findall(RE_POT, text)])
         data['data'].update({'names': names,
                              'stunned': stunned,
