@@ -36,6 +36,9 @@ R_RM_56 = "66" + "6664444466444444441223" + "33"
 R_RM_60 = "66" + "67785555555533555555555587776" + "6776444441222223555877646"
 R_R01 = "4"
 R_R1T0 = "7" * 11
+R_ERIK = "644"
+R_IRGO = "64"
+R_T01 = "8"
 
 
 def _format(route):
@@ -69,9 +72,10 @@ class Pather():
     SWMP1 = 17 # swamp level 0 grinding waypoint
     DSRT1 = 20 # desert level 0 grinding
     TROO1 = 21 # roo level 1 entrance
-    TROO2 = 22 # roo level 1 erik
+    TROO2 = 22 # roo level 1 erik waypoint
     TROO3 = 23 # roo level 1 main floor
     TROO4 = 24 # roo level 1 after runs
+    NPC04 = 204 # roo level 1 erik
     TRMZ0 = 30 # roo level 2 entrance
     TRM11 = 31 # roo level 2 room 1 (door 1 nexist)
     TRM12 = 32 # roo level 2 room 2
@@ -81,7 +85,9 @@ class Pather():
     TRM16 = 36 # roo level 2 room 6
     #TRM16 = 37 # roo level 2 room 7
     TROO0 = 37 # roo after level 2 portal
-    TECH1 = 41 # techo plains level 0 grinding
+    TECH1 = 40 # techo plains level 0 grinding
+    TECC1 = 41 # techo caves level 1 entrance
+    NPC05 = 205 # techo caves level 1 irgo
 
     LOOP0 = _format("9")
     LOOP1 = _format("7" + "9" * 4 + "2")
@@ -131,6 +137,7 @@ class Pather():
              (DSRT1, TROO1): _format(R_D1R1),
              (TROO1, TROO2): _format(R_R12),
              (TROO2, TROO3): _format(R_R23),
+             (TROO2, NPC04): _format(R_ERIK),
              (TROO3, TROO4): _format(R_R34),
              (TROO4, TRMZ0): _format(R_R45),
              (TRMZ0, TRM11): _format(R_RM_01),
@@ -143,6 +150,7 @@ class Pather():
              (TROO0, TRM16): None,
              (TROO0, TROO1): _format(R_R01),
              (TROO1, TECH1): _format(R_R1T0)
+             (TECC1, NPC05): _format(R_IRGO),
             }
     for src, dst in list(EDGES.keys()):
         if not (dst, src) in EDGES:
@@ -177,6 +185,8 @@ class Pather():
                (TRM16, TROO0): (None, 2),
                (TECH1, TROO1): (None, 3),
                (TROO1, TECH1): (3, None),
+               (TECH1, TECC1): (None, 4),
+               (TECC1, TECH1): (1, None),
               }
 
 
