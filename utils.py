@@ -11,7 +11,7 @@ import tempfile
 
 
 CRED_FILE = 'LOGIN'
-SESSION_CACHE = os.join(tempfile.gettempdir(), 'login.pickle')
+SESSION_CACHE = os.path.join(tempfile.gettempdir(), 'login.pickle')
 
 
 def login(username=None, password=None):
@@ -39,13 +39,13 @@ def login(username=None, password=None):
     response = s.post('http://www.neopets.com/login.phtml',
                       data={'destination': "%2F",
                             'username': username,
-                            'password': password},
-                      headers=headers)
+                            'password': password})
 
     # DEBUG
     #with open('/tmp/login.html', 'w') as fp:
     #    fp.write(response.content.decode('utf-8'))
 
+    # TODO: better validation
     if response.status_code != 200:
         logging.error("login unsuccessful")
         return None

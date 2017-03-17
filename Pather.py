@@ -149,7 +149,7 @@ class Pather():
              (TRM16, TROO0): _format(R_RM_60),
              (TROO0, TRM16): None,
              (TROO0, TROO1): _format(R_R01),
-             (TROO1, TECH1): _format(R_R1T0)
+             (TROO1, TECH1): _format(R_R1T0),
              (TECC1, NPC05): _format(R_IRGO),
             }
     for src, dst in list(EDGES.keys()):

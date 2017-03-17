@@ -61,10 +61,10 @@ HP_TARGET = 0.95
 def init():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--start",
-                        type=int, default=-1,
+                        type=int,
                         help="specify start location (code)")
     parser.add_argument("-d", "--dst",
-                        type=int, default=-1,
+                        type=int,
                         help="specify end location (code)")
     parser.add_argument("-v", "--verbosity",
                         action="count", default=0,
