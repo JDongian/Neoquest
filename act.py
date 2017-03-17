@@ -50,6 +50,7 @@ def portal(s, p):
 
 
 # higher level function, probably move to grind
+# TODO: consider overheal
 def heal(s, hp, target, overheal=False):
     """heal to full using weakest potions"""
     hp_curr, hp_max = hp
@@ -58,7 +59,6 @@ def heal(s, hp, target, overheal=False):
         return -1 # not in need of healing
 
     # TODO: an algorithm using all available potions
-    # TODO: consider overheal
     potions = items.get_potions(s)
     potion = items.worst_potion(potions)
     if potion:

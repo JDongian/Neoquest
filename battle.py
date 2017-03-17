@@ -9,10 +9,8 @@ def _at_risk(hp_data):
     (my_hp, my_max), (e_hp, e_max) = hp_data
 
     if my_hp > my_max * RISK_THRESHOLD:
-        # don't heal if more than 50%
         return False
     if my_hp > e_max * RISK_THRESHOLD:
-        # don't heal if more than half enemy max hp
         return False
     return True
 

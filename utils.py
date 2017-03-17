@@ -7,28 +7,14 @@ import os.path
 import pickle
 import time
 import random
+import tempfile
 
 
-# TODO: go for something more generic
-DEFAULT_HEADER = {
-    'User-Agent': 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:17.0) Gecko/20130626 Firefox/17.0 Iceweasel/17.0.7',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Host': 'www.neopets.com',
-    'Referer': 'http://www.neopets.com/login/index.phtml'
-}
-#ALT_HEADER = {
-#        'Host': 'www.neopets.com',
-#        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
-#        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#        'Accept-Language': 'en-US,en;q=0.5',
-#        'DNT': '1',
-#        'Connection': 'keep-alive' ,
-#        'Upgrade-Insecure-Requests': '1'}
 CRED_FILE = 'LOGIN'
-SESSION_CACHE = '/tmp/login.pickle'
+SESSION_CACHE = os.join(tempfile.gettempdir(), 'login.pickle')
 
 
-def login(username=None, password=None, headers=DEFAULT_HEADER):
+def login(username=None, password=None):
     """Return a logged in session."""
     s = requests.session()
 
@@ -49,8 +35,6 @@ def login(username=None, password=None, headers=DEFAULT_HEADER):
             username = input('Username: ')
             password = getpass.getpass()
 
-    # paranoid mode
-    #s.get('http://www.neopets.com', headers=headers)
     logging.info("logging in")
     response = s.post('http://www.neopets.com/login.phtml',
                       data={'destination': "%2F",

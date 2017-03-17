@@ -191,13 +191,11 @@ class Pather():
 
 
     def __init__(self, pos):
-        #self.is_looping = False # TODO: deadcode
         self.index = 0
         self.route = None
         self.portal = None, None
         self.pos = pos
         self.dst = None
-        #self.traveling = False # weird variable, indicates if is changing position
         self.travel_queue = []
 
 
@@ -259,12 +257,10 @@ class Pather():
             next_dst = self.travel_queue[0]
 
             if self.pos == next_dst:
-                # TODO:deadcode self.is_looping = True
                 self.index = 0
                 self.route = self.LOOPS.get(self.pos, self.LOOP0)
                 self.portal = None, None
                 self.dst = next_dst
-                #self.traveling = True
                 self.travel_queue = self.travel_queue[1:]
                 logging.debug("waypoint update (looping) {}(-{})".format(self.travel_queue, self.dst))
                 return self.next_direction()
@@ -273,7 +269,6 @@ class Pather():
                 self.route = self.EDGES[(self.pos, next_dst)]
                 self.portal = self.PORTALS.get((self.pos, next_dst), (None, None))
                 self.dst = next_dst
-                #self.traveling = True
                 self.travel_queue = self.travel_queue[1:]
                 logging.debug("waypoint update {}(-{})".format(self.travel_queue, self.dst))
                 return self.next_direction()
@@ -296,7 +291,6 @@ class Pather():
             else:
                 return self.next_direction()
 
-        #if self.traveling:
         logging.debug("route index is {}".format(self.index))
 
         self.pos = None
