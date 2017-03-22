@@ -39,6 +39,12 @@ R_R1T0 = "7" * 11
 R_ERIK = "644"
 R_IRGO = "64"
 R_T01 = "8"
+R_TI_BK = "77666464441444666777778877764444" #irgo to black exit
+R_TBK_O = "5885" # black exit to orange entrance
+R_TO = "88858535555533553555588585877767766888855555535555553553588885555335558555888855" # orange
+R_TOY = "7614" # orange exit to yellow entrance
+R_TY = "885555558888777776464146641111111411114416666" + "7" * 14 # orange exit to yellow entrance
+R_TYMT = "67" # yellow exit to mountain fortress
 
 
 def _format(route):
@@ -83,11 +89,17 @@ class Pather():
     TRM14 = 34 # roo level 2 room 4
     TRM15 = 35 # roo level 2 room 5
     TRM16 = 36 # roo level 2 room 6
-    #TRM16 = 37 # roo level 2 room 7
     TROO0 = 37 # roo after level 2 portal
     TECH1 = 40 # techo plains level 0 grinding
-    TECC1 = 41 # techo caves level 1 entrance
-    NPC05 = 205 # techo caves level 1 irgo
+    TECC1 = 41 # techo caves 1 black entrance
+    NPC05 = 205 # techo caves 1 irgo
+    TECP1 = 42 # techo caves 1 black exit
+    TECC2 = 43 # techo caves 2 orange entrance
+    TECP2 = 44 # techo caves 2 orange exit
+    TECC3 = 45 # techo caves 3 yellow entrance
+    TECP3 = 46 # techo caves 3 yellow exit
+    MTF00 = 50 # mountain fortress entrance
+    # TODO: add techo grind spots
 
     LOOP0 = _format("9")
     LOOP1 = _format("7" + "9" * 4 + "2")
@@ -150,7 +162,14 @@ class Pather():
              (TROO0, TRM16): None,
              (TROO0, TROO1): _format(R_R01),
              (TROO1, TECH1): _format(R_R1T0),
+             (TECH1, TECC1): _format(R_T01),
              (TECC1, NPC05): _format(R_IRGO),
+             (NPC05, TECP1): _format(R_TI_BK),
+             (TECP1, TECC2): _format(R_TBK_O),
+             (TECC2, TECP2): _format(R_TO),
+             (TECP2, TECC3): _format(R_TOY),
+             (TECC3, TECP3): _format(R_TY),
+             (TECP3, MTF00): _format(R_TYMT)
             }
     for src, dst in list(EDGES.keys()):
         if not (dst, src) in EDGES:
@@ -187,6 +206,18 @@ class Pather():
                (TROO1, TECH1): (3, None),
                (TECH1, TECC1): (None, 4),
                (TECC1, TECH1): (1, None),
+               (NPC05, TECP1): (None, 2),
+               (TECP1, NPC05): (5, None),
+               (TECP1, TECC2): (None, 6),
+               (TECC2, TECP1): (3, None),
+               (TECC2, TECP2): (None, 5),
+               (TECP2, TECC2): (8, None),
+               (TECP2, TECC3): (None, 9),
+               (TECC3, TECP2): (6, None), # check
+               (TECC3, TECP3): (None, 14),
+               (TECP3, TECC3): (17, None),
+               (TECP3, MTF00): (None, 20),
+               (MTF00, TECP3): (1, None)
               }
 
 

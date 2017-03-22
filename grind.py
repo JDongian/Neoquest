@@ -17,14 +17,10 @@ M_ROO = ["ghastly initiate",
 
 #SKILL_GOALS = {
 #    'Life Weapons': 10,
-#    'Field Medic': 1,
-#    'Lifesteal': 1,
-#    'Ice Weapons': 1,
-#    'Heart of Ice': 1,
-#    'Shock Weapons': 9,
-#    'Disable': 9,
-#    'Fortitude': 9,
-#    'Shockwave': 9
+#    'Shock Weapons': 10,
+#    'Disable': 10,
+#    'Fortitude': 10,
+#    'Shockwave': 10
 #}
 
 #SKILL_GOALS = {
