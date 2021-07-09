@@ -39,12 +39,15 @@ R_R1T0 = "7" * 11
 R_ERIK = "644"
 R_IRGO = "64"
 R_T01 = "8"
-R_TI_BK = "77666464441444666777778877764444" #irgo to black exit
+R_TI_G = "77" #irgo to black grind
+R_TG_BK = "666464441444666777778877764444" #black grind to black exit
 R_TBK_O = "5885" # black exit to orange entrance
-R_TO = "88858535555533553555588585877767766888855555535555553553588885555335558555888855" # orange
-R_TOY = "7614" # orange exit to yellow entrance
-R_TY = "885555558888777776464146641111111411114416666" + "7" * 14 # orange exit to yellow entrance
-R_TYMT = "67" # yellow exit to mountain fortress
+R_TO_G = "888585" # orange entrance to grind
+R_TG_O = "35555533553555588585877767766888855555535555553553588885555335558555888855" # orange grind to exit
+R_TO_Y = "7614" # orange exit to yellow entrance
+R_TY_G = "8855" # yellow entrance to grind
+R_TG_Y = "55558888777776464146641111111411114416666" + "7" * 14 # yellow grind to exit
+R_TY_MT = "67" # yellow exit to mountain fortress
 
 
 def _format(route):
@@ -94,9 +97,12 @@ class Pather():
     TECC1 = 41 # techo caves 1 black entrance
     NPC05 = 205 # techo caves 1 irgo
     TECP1 = 42 # techo caves 1 black exit
+    TCBLK = 59 # techo caves 1 black grind
     TECC2 = 43 # techo caves 2 orange entrance
+    TCORN = 58 # techo caves 2 orange grind
     TECP2 = 44 # techo caves 2 orange exit
     TECC3 = 45 # techo caves 3 yellow entrance
+    TCYEL = 57 # techo caves 3 yellow grind
     TECP3 = 46 # techo caves 3 yellow exit
     MTF00 = 50 # mountain fortress entrance
     # TODO: add techo grind spots
@@ -164,12 +170,15 @@ class Pather():
              (TROO1, TECH1): _format(R_R1T0),
              (TECH1, TECC1): _format(R_T01),
              (TECC1, NPC05): _format(R_IRGO),
-             (NPC05, TECP1): _format(R_TI_BK),
+             (NPC05, TCBLK): _format(R_TI_G),
+             (TCBLK, TECP1): _format(R_TG_BK),
              (TECP1, TECC2): _format(R_TBK_O),
-             (TECC2, TECP2): _format(R_TO),
-             (TECP2, TECC3): _format(R_TOY),
-             (TECC3, TECP3): _format(R_TY),
-             (TECP3, MTF00): _format(R_TYMT)
+             (TECC2, TCORN): _format(R_TO_G),
+             (TCORN, TECP2): _format(R_TG_O),
+             (TECP2, TECC3): _format(R_TO_Y),
+             (TECC3, TCYEL): _format(R_TY_G),
+             (TCYEL, TECP3): _format(R_TG_Y),
+             (TECP3, MTF00): _format(R_TY_MT)
             }
     for src, dst in list(EDGES.keys()):
         if not (dst, src) in EDGES:
@@ -205,17 +214,17 @@ class Pather():
                (TECH1, TROO1): (None, 3),
                (TROO1, TECH1): (3, None),
                (TECH1, TECC1): (None, 4),
-               (TECC1, TECH1): (1, None),
-               (NPC05, TECP1): (None, 2),
-               (TECP1, NPC05): (5, None),
+               (TECC1, TECH1): (1, None), # black entrance
+               (TCBLK, TECP1): (None, 2),
+               (TECP1, TCBLK): (5, None), # black exit
                (TECP1, TECC2): (None, 6),
-               (TECC2, TECP1): (3, None),
-               (TECC2, TECP2): (None, 5),
-               (TECP2, TECC2): (8, None),
+               (TECC2, TECP1): (3, None), # orange entrance
+               (TCORN, TECP2): (None, 5),
+               (TECP2, TCORN): (8, None), # orange exit
                (TECP2, TECC3): (None, 9),
-               (TECC3, TECP2): (6, None), # check
-               (TECC3, TECP3): (None, 14),
-               (TECP3, TECC3): (17, None),
+               (TECC3, TECP2): (6, None), # yellow entrance
+               (TCYEL, TECP3): (None, 14),
+               (TECP3, TCYEL): (17, None), # yellow exit
                (TECP3, MTF00): (None, 20),
                (MTF00, TECP3): (1, None)
               }
